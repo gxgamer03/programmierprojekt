@@ -8,7 +8,426 @@
 
     
 
-    <script src='https://cdn.jsdelivr.net/gh/gxgamer03/programmierprojekt/sketch.js'></script>
+    <script>
+    let v1;
+let xtemp;
+let ytemp;
+var gameoverx=false;
+let va= 0.5;
+var acceleration;
+var atimer=300;
+var atimerset = atimer;
+let ptimer=1000;
+var ptimerset = 700;
+var difficulty =2;
+var score =0;
+var highscore = 0;
+var imgearth;
+var imgship;
+var sprship;
+var imgast;
+var imglaser;
+var imgspeed;
+var bg;
+var spawncap = 200;
+var speedincrease = false;
+var blinktimer = 100;
+var bl = 0;
+var startscreen = true;
+var shot;
+var resrate = 20;
+var explode;
+var gameoversound;
+function setup() {
+  createCanvas(innerWidth, innerHeight);
+  explode = loadSound("https://exorciser.ch/_media/pub/explode.mp3")
+  shot = loadSound("https://exorciser.ch/_media/pub/shot.mp3")
+  gameoversound = loadSound("https://exorciser.ch/_media/pub/gameover.wav")
+  background("black");
+  var z = gethighscore()
+  bg = loadImage("https://exorciser.ch/_media/pub/background.png")
+  imgearth = loadImage('https://exorciser.ch/_media/pub/earth.png');
+  imgast = loadImage("https://exorciser.ch/_media/pub/meteorite.png")
+  imglaser = loadImage("https://exorciser.ch/_media/pub/laser.png")
+  imgspeed = loadImage("https://exorciser.ch/_media/pub/speedup.png")
+  imgship = loadAnimation('https://exorciser.ch/_media/pub/spaceship2.png',"https://exorciser.ch/_media/pub/spaceship3.png");
+  sprship = createSprite(width/2,height/2)
+  sprship.addAnimation("default", imgship)
+  
+}
+class upgrade{
+  constructor(speed,x,y){
+    this.speed = speed*Math.random()+speed/2
+    this.x = x
+    this.y = y
+    this.dx = Math.random()*Math.pow(-1,Math.ceil(Math.random()*2))
+    this.dy = Math.sqrt(1-this.dx^2)*Math.pow(-1,Math.ceil(Math.random()*2))
+    
+  }
+  display(){
+    this.x = this.x - this.dx*this.speed
+    this.y = this.y - this.dy*this.speed
+    image(imgspeed,this.x,this.y,50, 50,)
+  }
+}
+class asteroid{
+  constructor(speed,x,y,dx,dy){
+    this.speed = speed*Math.random()+speed/2
+    this.x = x
+    this.y = y
+    this.dx = dx/(Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2)))
+    this.dy = dy/(Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2)))
+    this.r =30*Math.random()+30
+  }
+  display(){
+    this.x = this.x + this.dx*this.speed
+    this.y = this.y + this.dy*this.speed
+    imageMode(CENTER)
+    image(imgast,this.x,this.y,this.r, this.r,)
+  }
+  setv(){
+    v.set()
+  }
+}
+class Bullet{
+  constructor(speed,x,y){
+    this.x = x
+    this.y = y
+    this.xz = x
+    this.yz = y
+    this.speed = speed
+    this.sprite = createSprite(width/2,height/2)
+    this.sprite.addAnimation("default",imglaser)
+    this.angle = getangle()
+  }
+  display() { 
+    fill("white")
+    circle(this.x, this.y, 10)
+    
+    this.sprite.position.x =this.x
+    this.sprite.position.y = this.y
+    this.sprite.rotation = this.angle
+    this.sprite.scale = 0.05
+    
+  }
+}
+class Player {
+  constructor(x, y, radius, color) {
+    this.x = x
+    this.y = y
+    this.radius = radius
+    this.color = color
+    this.scale = 0.2
+    this.rotation = 0
+  }
+  display() {
+    fill(this.color)
+    sprship.scale = this.scale
+    sprship.rotation = this.rotation
+    sprship.position.x = this.x
+    sprship.position.y = this.y
+  }
+}
+class Earth {
+  constructor(x, y, color, r) {
+    this.x = x
+    this.y = y 
+    this.color = "green"
+    this.r = r
+  }
+  display() {
+    fill(this.color)
+    imageMode(CENTER);
+    image(imgearth,this.x,this.y,this.r,this.r) 
+  }
+}
+function calculatexy(radius) {
+  xdistance = mouseX - earth.x
+  ydistance = mouseY - earth.y
+  mouseradius = Math.sqrt(Math.pow(xdistance, 2) + Math.pow(ydistance, 2))
+  player.x = earth.x + ((radius * xdistance) / mouseradius)
+  player.y = earth.y + ((radius * ydistance) / mouseradius)
+  
+}
+
+let xdistance;
+let ydistance;
+let mouseradius;
+const earth = new Earth(innerWidth / 2, innerHeight/ 2, "green", 200)
+let player = new Player(50, 100, 50, "red")
+let bullets = []
+let asteroids = []
+var timer = 0;
+createAsteroidt();
+createAsteroidr();
+createAsteroidl();
+createAsteroidb();
+var up = new upgrade(0,innerWidth/2,innerHeight/2);
+function draw() {
+  if(startscreen==true){
+    background(bg,253)
+    textSize(100)
+    fill("white")
+    textAlign(CENTER)
+    text('Earth Defense', innerWidth/2, innerHeight/2-250);
+    textSize(50)
+    text("Press Space to play",innerWidth/2, innerHeight/2+250)
+    player.x = (innerWidth/2)-50
+    player.y = innerHeight/2-50
+    player.rotation = 90
+    player.scale = 1
+    player.display()
+    drawSprites()
+    if(keyIsDown(32)){
+      startscreen = false
+    }
+  }
+  else if(gameoverx==true){
+    background("black")
+    background(bg,253)
+    fill("white")
+    
+    textSize(100);
+    textAlign(CENTER)
+    text('Game Over', innerWidth/2, innerHeight/2);
+    textSize(15)
+    
+    
+    if (blinktimer ===100&&bl === 0){
+      bl = 1
+    }
+    else if (blinktimer ===0&&bl === 1){
+      bl = 0
+    }
+    else if(bl ===1){
+      blinktimer = blinktimer -2.5
+    }
+    else {blinktimer = blinktimer +2,5}
+  
+      fill(255,255,255,(blinktimer*255)/100)
+    
+    
+    text('Press R to restart', innerWidth/2, innerHeight/2+50);
+    textSize(20)
+    fill("white")
+    text('Score: '+ score, innerWidth/2, innerHeight/2-130);
+    textSize(30)
+    if(score>gethighscore()){
+      document.cookie = score;
+      console.log("New Highscore")
+      text('Highscore: '+score, innerWidth/2, innerHeight/2-100);
+    }
+    else{text('Highscore: '+gethighscore(), innerWidth/2, innerHeight/2-100);}
+    
+    if(keyIsDown(82)){
+      gameoverx = false
+      reset()
+      
+    }
+  }
+  else{
+  player.rotation = getangle()
+  player.scale = 0.2
+  gameover()
+  background("black")
+  background(bg,253)
+  score+=1
+  collision()
+  shoot()
+  spawn()
+  progress()
+  up.display()
+  earth.display()
+  calculatexy(150)
+  
+  for(n=0; n<bullets.length;n++){
+    bulletspeed(n)
+    
+    bullets[n].display()
+    destroybullet()
+    
+  }
+  createupgrade()
+  drawSprites()
+  player.display()
+  fill("white")
+  textSize(20)
+  text(score,30,30)
+}
+  }
+function bulletspeed(n){
+  v1 = createVector(bullets[n].x-earth.x,bullets[n].y-earth.y).normalize()
+  bullets[n].x = bullets[n].x+v1.x*bullets[n].speed
+  bullets[n].y = bullets[n].y+v1.y*bullets[n].speed
+}
+
+function createAsteroidt(){
+xtemp = Math.random()*innerWidth
+let dx = earth.x-xtemp
+let dy = earth.y
+
+atemp = new asteroid(va,xtemp,10,dx,dy)
+asteroids.push(atemp)
+}
+function createAsteroidb(){
+  xtemp = Math.random()*innerWidth
+  let dx = earth.x-xtemp
+  let dy = -earth.y
+  
+  atemp = new asteroid(va,xtemp,innerHeight,dx,dy)
+  asteroids.push(atemp)
+  }
+function createAsteroidr(){
+  ytemp = Math.random()*innerWidth
+  let dx = -earth.x
+  let dy = earth.y-ytemp
+  
+  atemp = new asteroid(va,innerWidth,ytemp,dx,dy)
+  asteroids.push(atemp)
+  }
+  function createAsteroidl(){
+    ytemp = Math.random()*innerWidth
+    let dx = earth.x
+    let dy = earth.y-ytemp
+    
+    atemp = new asteroid(va,0,ytemp,dx,dy)
+    asteroids.push(atemp)
+    }
+function collision() {
+  
+  for(i=0; i<asteroids.length;i++){
+    for(z=0; z<bullets.length;z++){
+      try{
+        var ux = bullets[z].x-up.x
+        var uy = bullets[z].y-up.y
+        var du = Math.sqrt(ux*ux+uy*uy)-(10/2+50/2)
+        var cx = bullets[z].x-asteroids[i].x
+        var cy = bullets[z].y-asteroids[i].y
+        var d  = Math.sqrt(cx*cx+cy*cy)-(10/2+asteroids[i].r/2)
+        if(du<=0){
+          up.x = innerWidth/2
+          up.y = innerHeight/2
+          up.speed = 0
+          resrate = resrate/2
+        }
+        if(d<=0){
+          asteroids.splice(i, 1); 
+          bullets[z].sprite.remove()
+          bullets.splice(z, 1);
+          explode.play()
+        }}
+      catch(err){}
+      
+    }
+    
+    
+  }
+}
+function gameover(){
+  for(i=0; i<asteroids.length;i++){ 
+      var gx = asteroids[i].x-earth.x
+      var gy = asteroids[i].y-earth.y
+      var d2  = Math.sqrt(gx*gx+gy*gy)-(asteroids[i].r/2+earth.r/2)
+      if(d2<=0){
+        for(z=0; z<bullets.length;z++){
+          bullets[z].sprite.remove()
+        }
+        gameoversound.play()
+        gameoverx=true;
+      }
+      
+      
+    }    
+}
+function shoot(){
+  if(keyIsDown(32)&&timer===0){ 
+    shot.play()
+    bullets.push(new Bullet(10,player.x,player.y))
+    v1 = createVector(bullets[bullets.length-1].x-earth.x,bullets[bullets.length-1].y-earth.y).normalize()
+    bullets[bullets.length-1].x = bullets[bullets.length-1].x+v1.x*30
+    bullets[bullets.length-1].y = bullets[bullets.length-1].y+v1.y*30
+    timer = resrate;
+  }   
+  else if(timer>0){
+    timer = timer-1
+  }
+  for(n=0; n<asteroids.length;n++){
+    
+    asteroids[n].display()
+    
+  }
+}
+function spawn(){
+  if(atimer===0){
+    createAsteroidt();
+    createAsteroidr();
+    createAsteroidl();
+    createAsteroidb();
+    atimer=atimerset;
+  }
+  else if(atimer>0){
+    atimer-=1
+  }
+}
+function progress(){
+  if(atimerset>spawncap){
+if(ptimer===0){
+  atimerset-=(difficulty*10)
+  console.log(atimerset)
+  ptimer = ptimerset;
+}
+else if(ptimer>0){
+  ptimer = ptimer-1
+}
+}
+else if(speedincrease==true){
+  if(ptimer===0){
+    va+=(difficulty*0.05)
+    console.log(atimerset)
+    ptimer = ptimerset;
+  }
+  else if(ptimer>0){
+    ptimer = ptimer-1
+  }
+}
+else if(atimerset<=spawncap){
+  speedincrease =true;
+}
+}
+function destroybullet(){
+  if(bullets[n].x>innerWidth||bullets[n].x<0||bullets[n].y>innerHeight||bullets[n].y<0){
+    bullets[n].sprite.remove()
+    bullets.splice(n, 1);
+  }
+}
+function reset(){
+  bullets = []
+  asteroids = []
+  score = 0
+  ptimerset = 700;
+  ptimer=1000;
+  atimer=0;
+  atimerset = 300;
+  speedincrease = false;
+  resrate = 20
+
+}
+
+function gethighscore(){
+  return parseInt(document.cookie.replace(/(\;.*)/, ""));
+}
+
+function getangle(){
+  return 180-((Math.atan2((player.x-earth.x),(player.y-earth.y)))/Math.PI)*180
+}
+function createupgrade(){
+  if(score%5000>=4990){
+    up = new upgrade(2,innerWidth/2,innerHeight/2)
+  }
+  
+}
+
+    </script>
     <script src='https://cdn.jsdelivr.net/gh/gxgamer03/programmierprojekt/p5.min.js'></script>
     <script src="https://cdn.jsdelivr.net/gh/gxgamer03/programmierprojekt/p5.sound.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gxgamer03/programmierprojekt/p5.play.js"></script>
