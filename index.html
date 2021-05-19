@@ -61,6 +61,9 @@ var backgroundsound;
 var altsound;
 var mute = false;
 function setup() {
+  if(document.cookie ===""){
+  document.cookie = 0
+  }
   createCanvas(innerWidth, innerHeight);
   explode = loadSound("https://exorciser.ch/_media/pub/explode.mp3")
   backgroundsound = createAudio('https://assets-music.icons8.com/mp3-low/653/5a5f4404-ee85-4d48-a97f-51e4bec2f14e.mp3?filename=reconfiguration.mp3');
