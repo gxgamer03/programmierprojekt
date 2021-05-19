@@ -27,7 +27,7 @@ canvas {
   <body>
     
        <script>
-    let v1;
+let v1;
 let xtemp;
 let ytemp;
 var gameoverx=false;
@@ -47,7 +47,7 @@ var imgast;
 var imglaser;
 var imgspeed;
 var bg;
-var spawncap = 100;
+var spawncap = 200;
 var speedincrease = false;
 var blinktimer = 100;
 var bl = 0;
@@ -56,9 +56,15 @@ var shot;
 var resrate = 20;
 var explode;
 var gameoversound;
+var uptimer = 5000;
+var backgroundsound;
+var altsound;
+var mute = false;
 function setup() {
   createCanvas(innerWidth, innerHeight);
   explode = loadSound("https://exorciser.ch/_media/pub/explode.mp3")
+  backgroundsound = createAudio('https://assets-music.icons8.com/mp3-low/653/5a5f4404-ee85-4d48-a97f-51e4bec2f14e.mp3?filename=reconfiguration.mp3');
+  altsound = createAudio('https://assets-music.icons8.com/mp3-low/634/028e9676-54b0-4282-b731-47e6ca047537.mp3?filename=finale.mp3');
   shot = loadSound("https://exorciser.ch/_media/pub/shot.mp3")
   gameoversound = loadSound("https://exorciser.ch/_media/pub/gameover.wav")
   background("black");
@@ -182,7 +188,10 @@ createAsteroidl();
 createAsteroidb();
 var up = new upgrade(0,innerWidth/2,innerHeight/2);
 function draw() {
+    
   if(startscreen==true){
+      if(mute === false){
+    altsound.loop()}
     background(bg,253)
     textSize(100)
     fill("white")
@@ -190,13 +199,23 @@ function draw() {
     text('Earth Defense', innerWidth/2, innerHeight/2-250);
     textSize(50)
     text("Press Space to play",innerWidth/2, innerHeight/2+250)
+    textSize(25)
+    text("Press F to fullscreen",innerWidth/2, innerHeight/2+290)
+    
     player.x = (innerWidth/2)-50
     player.y = innerHeight/2-50
     player.rotation = 90
     player.scale = 1
     player.display()
     drawSprites()
+    if(keyIsDown(70)){
+        mute = true
+        altsound.stop()
+      window.open("https://gxgamer03.github.io/programmierprojekt/index.html")
+    }
     if(keyIsDown(32)){
+        altsound.stop()
+        mute = false
       startscreen = false
     }
   }
@@ -244,6 +263,7 @@ function draw() {
     }
   }
   else{
+    backgroundsound.loop()
   player.rotation = getangle()
   player.scale = 0.2
   gameover()
@@ -350,7 +370,9 @@ function gameover(){
         for(z=0; z<bullets.length;z++){
           bullets[z].sprite.remove()
         }
+        backgroundsound.stop()
         gameoversound.play()
+        altsound.loop()
         gameoverx=true;
       }
       
@@ -432,15 +454,16 @@ function reset(){
 }
 
 function gethighscore(){
-  return parseInt(document.cookie.replace(/(\;.*)/, ""));
+  return parseInt(document.cookie));
 }
 
 function getangle(){
   return 180-((Math.atan2((player.x-earth.x),(player.y-earth.y)))/Math.PI)*180
 }
 function createupgrade(){
-  if(score%5000>=4990){
+  if(score%uptimer===0&&uptimer!=20000){
     up = new upgrade(2,innerWidth/2,innerHeight/2)
+    uptimer=uptimer*2
   }
   
 }
