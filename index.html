@@ -61,9 +61,6 @@ var backgroundsound;
 var altsound;
 var mute = false;
 function setup() {
-  if(document.cookie ===""){
-  document.cookie = 0
-  }
   createCanvas(innerWidth, innerHeight);
   explode = loadSound("https://exorciser.ch/_media/pub/explode.mp3")
   backgroundsound = createAudio('https://assets-music.icons8.com/mp3-low/653/5a5f4404-ee85-4d48-a97f-51e4bec2f14e.mp3?filename=reconfiguration.mp3');
@@ -144,7 +141,7 @@ class Player {
     this.y = y
     this.radius = radius
     this.color = color
-    this.scale = 0.2
+    this.scale = 0.0000001*innerHeight*innerWidth
     this.rotation = 0
   }
   display() {
@@ -157,26 +154,18 @@ class Player {
 }
 class Earth {
   constructor(x, y, color, r) {
-    this.x = x
-    this.y = y 
+    this.x = innerWidth/2
+    this.y = innerHeight/2
     this.color = "green"
-    this.r = r
+    this.r = r*0.00035*innerHeight*innerWidth
   }
   display() {
     fill(this.color)
     imageMode(CENTER);
+    this.r = 0.00035*innerHeight*innerWidth
     image(imgearth,this.x,this.y,this.r,this.r) 
   }
 }
-function calculatexy(radius) {
-  xdistance = mouseX - earth.x
-  ydistance = mouseY - earth.y
-  mouseradius = Math.sqrt(Math.pow(xdistance, 2) + Math.pow(ydistance, 2))
-  player.x = earth.x + ((radius * xdistance) / mouseradius)
-  player.y = earth.y + ((radius * ydistance) / mouseradius)
-  
-}
-
 let xdistance;
 let ydistance;
 let mouseradius;
@@ -191,29 +180,26 @@ createAsteroidl();
 createAsteroidb();
 var up = new upgrade(0,innerWidth/2,innerHeight/2);
 function draw() {
-    
+    resizeCanvas(innerWidth,innerHeight)
   if(startscreen==true){
       if(mute === false){
     altsound.loop()}
     background(bg,253)
-    textSize(100)
+    textSize(innerHeight*0.15)
     fill("white")
     textAlign(CENTER)
-    text('Earth Defense', innerWidth/2, innerHeight/2-250);
-    textSize(50)
-    text("Press Space to play",innerWidth/2, innerHeight/2+250)
+    text('Earth Defense', innerWidth/2, innerHeight/2-innerHeight*0.3);
+    textSize(innerHeight*0.07)
+    text("Press Space to play",innerWidth/2, innerHeight/2+innerHeight*0.25)
+    textSize(innerHeight*0.03)
     
-    player.x = (innerWidth/2)-50
-    player.y = innerHeight/2-50
+    
+    player.x = (innerWidth/2)-innerWidth*0.05
+    player.y = innerHeight/2
     player.rotation = 90
-    player.scale = 1
+    player.scale = innerHeight*0.0015
     player.display()
     drawSprites()
-    if(keyIsDown(70)){
-        mute = true
-        altsound.stop()
-      window.open("https://gxgamer03.github.io/programmierprojekt/index.html")
-    }
     if(keyIsDown(32)){
         altsound.stop()
         mute = false
@@ -266,7 +252,7 @@ function draw() {
   else{
     backgroundsound.loop()
   player.rotation = getangle()
-  player.scale = 0.2
+  player.scale = 0.0000004*innerHeight*innerWidth
   gameover()
   background("black")
   background(bg,253)
@@ -277,7 +263,7 @@ function draw() {
   progress()
   up.display()
   earth.display()
-  calculatexy(150)
+  calculatexy(150*innerWidth*0.0012)
   
   for(n=0; n<bullets.length;n++){
     bulletspeed(n)
@@ -455,7 +441,7 @@ function reset(){
 }
 
 function gethighscore(){
-  return parseInt(document.cookie);
+  return parseInt(document.cookie.replace(/(\;.*)/, ""));
 }
 
 function getangle(){
@@ -468,7 +454,14 @@ function createupgrade(){
   }
   
 }
-
+function calculatexy(radius) {
+  xdistance = mouseX - earth.x
+  ydistance = mouseY - earth.y
+  mouseradius = Math.sqrt(Math.pow(xdistance, 2) + Math.pow(ydistance, 2))
+  player.x = earth.x + ((radius * xdistance) / mouseradius)
+  player.y = earth.y + ((radius * ydistance) / mouseradius)
+  
+}
     </script>
   </body>
 </html>
