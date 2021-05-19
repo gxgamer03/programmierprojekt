@@ -36,7 +36,7 @@ var imgast;
 var imglaser;
 var imgspeed;
 var bg;
-var spawncap = 200;
+var spawncap = 100;
 var speedincrease = false;
 var blinktimer = 100;
 var bl = 0;
@@ -46,7 +46,7 @@ var resrate = 20;
 var explode;
 var gameoversound;
 function setup() {
-  createCanvas(innerWidth, innerHeight);
+  createCanvas(displayWidth, displayHeight);
   explode = loadSound("https://exorciser.ch/_media/pub/explode.mp3")
   shot = loadSound("https://exorciser.ch/_media/pub/shot.mp3")
   gameoversound = loadSound("https://exorciser.ch/_media/pub/gameover.wav")
