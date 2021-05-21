@@ -462,9 +462,9 @@ function getangle(){
   return 180-((Math.atan2((player.x-earth.x),(player.y-earth.y)))/Math.PI)*180
 }
 function createupgrade(){
-  if(score%uptimer===0&&uptimer!=20000){
+  if(score===uptimer&&uptimer<=20000){
     up = new upgrade(2,innerWidth/2,innerHeight/2)
-    uptimer=uptimer*2
+    uptimer=uptimer+10000
   }
   
 }
